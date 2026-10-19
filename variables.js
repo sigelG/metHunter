@@ -5,5 +5,7 @@ export const variables = {
     topFiveLeaguesID: [],
     topFiveLeaguesCurrentSeason: [],
     zeroPercentageCounter: 0,
-    zeroPercentage:0
+    zeroPercentage:0,
+    countryList:{},
+    leagueList:{}
 }

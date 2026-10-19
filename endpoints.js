@@ -1,13 +1,13 @@
 export const endpoints = {
   proxyUrl: 'https://corsproxy.io/?url=',
-  options: {
-    method: 'GET',
-    headers: {
-      'x-rapidapi-key': 'ea21124a27msh2d1f5b78bf4331ep1d7a2cjsn13188233d52d',
-      'x-rapidapi-host': 'sofascore.p.rapidapi.com',
-      'Content-Type': 'application/json'
-    }
-  },
+  options : {
+	method: 'GET',
+	headers: {
+		'x-rapidapi-key': '7bac5b958fmshac9e738698ed3d9p137c4djsn9653cb47ed5e',
+		'x-rapidapi-host': 'sofascore.p.rapidapi.com',
+		'Content-Type': 'application/json'
+	}
+},
   countryInfoURL: 'https://sofascore.p.rapidapi.com/categories/list?sport=football',
   leagueInfoURL(countryID) {
     let leagueInfoReplacer = `https://sofascore.p.rapidapi.com/tournaments/list?categoryId=${countryID}`
