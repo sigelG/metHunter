@@ -1,7 +1,16 @@
+// bet.js
+
 import { endpoints } from "./endpoints.js";
 import { variables } from "./variables.js";
 
-const { proxyUrl, options, countryInfoURL, url, leagueInfoURL, seasonInfoURL, roundInfoURL } = endpoints;
+const {
+  buildProxyUrl,
+  options,
+  countryInfoURL,
+  leagueInfoURL,
+  seasonInfoURL,
+  roundInfoURL
+} = endpoints;
 
 let {
   topFiveCountryNamesHolder,
@@ -15,41 +24,30 @@ let {
 
 
 async function bet() {
-
-  //top five country ID gathering
-
   try {
-    const response = await fetch(
-      proxyUrl + encodeURIComponent(countryInfoURL),
-      options,
-    );
+    // ---- Top five country ID gathering ----
+    const response = await fetch(buildProxyUrl(countryInfoURL), options);
 
     if (!response.ok) {
       throw new Error(`HTTP error: ${response.status} ${response.statusText}`);
     }
 
     const result = await response.json();
+    const countryNameArray = result.categories;
 
-    let countryNameArray = result.categories;
+    for (const countryName of countryNameArray) {
+      const countryNameIterator = countryName.name.toLowerCase();
 
-    for (let countryName of countryNameArray) {
-      let countryNameIterator = countryName.name.toLowerCase();
-
-      if (
-        topFiveCountryNamesHolder.includes(countryNameIterator)
-      ) {
+      if (topFiveCountryNamesHolder.includes(countryNameIterator)) {
         topFiveCountriesID.push(countryName.id);
       }
     }
 
-
-
-    //top five league ID gathering
-
-    for (let countryID of topFiveCountriesID) {
+    // ---- Top five league ID gathering ----
+    for (const countryID of topFiveCountriesID) {
       const response = await fetch(
-        proxyUrl + encodeURIComponent(leagueInfoURL(countryID)),
-        options,
+        buildProxyUrl(leagueInfoURL(countryID)),
+        options
       );
 
       if (!response.ok) {
@@ -57,25 +55,22 @@ async function bet() {
       }
 
       const result = await response.json();
+      const leagueNameArray = result.groups[0].uniqueTournaments;
 
-      let leagueNameArray = result.groups[0].uniqueTournaments
-      for (let leagueName of leagueNameArray) {
-        let leagueNameIterator = leagueName.name.toLowerCase();
+      for (const leagueName of leagueNameArray) {
+        const leagueNameIterator = leagueName.name.toLowerCase();
 
-        if (
-          topFiveCountryLeaguesHolder.includes(leagueNameIterator)
-        ) {
+        if (topFiveCountryLeaguesHolder.includes(leagueNameIterator)) {
           topFiveLeaguesID.push(leagueName.id);
         }
       }
     }
 
-    //top five leagues current season gathering
-
-    for (let leagueID of topFiveLeaguesID) {
+    // ---- Top five leagues current season gathering ----
+    for (const leagueID of topFiveLeaguesID) {
       const response = await fetch(
-        proxyUrl + encodeURIComponent(seasonInfoURL(leagueID)),
-        options,
+        buildProxyUrl(seasonInfoURL(leagueID)),
+        options
       );
 
       if (!response.ok) {
@@ -83,15 +78,22 @@ async function bet() {
       }
 
       const result = await response.json();
-      topFiveLeaguesCurrentSeason.push({ leagueID: leagueID, currentSeasonID: result.seasons[0].id })
+      topFiveLeaguesCurrentSeason.push({
+        leagueID,
+        currentSeasonID: result.seasons[0].id
+      });
     }
 
-    // setting zero percentage counter by counting how many of top five leagues, week 12 has started
-    
-    for (let topFiveCurrentSeason of topFiveLeaguesCurrentSeason) {
+    // ---- Zero percentage counter ----
+    for (const topFiveCurrentSeason of topFiveLeaguesCurrentSeason) {
       const response = await fetch(
-        proxyUrl + encodeURIComponent(roundInfoURL(topFiveCurrentSeason.leagueID, topFiveCurrentSeason.currentSeasonID)),
-        options,
+        buildProxyUrl(
+          roundInfoURL(
+            topFiveCurrentSeason.leagueID,
+            topFiveCurrentSeason.currentSeasonID
+          )
+        ),
+        options
       );
 
       if (!response.ok) {
@@ -99,26 +101,22 @@ async function bet() {
       }
 
       const result = await response.json();
-      if (result.currentRound.round >= 12 && result.currentRound.round < result.rounds.length) {
+
+      if (
+        result.currentRound.round >= 12 &&
+        result.currentRound.round < result.rounds.length
+      ) {
         zeroPercentageCounter++;
       }
     }
 
-    //specifying the zero percentage (zero percentage= the percentage of 0-0 in leagues)
+    // ---- Zero percentage ----
+    zeroPercentage = zeroPercentageCounter > 0 ? 86 : 81;
 
-    if (zeroPercentageCounter > 0) {
-      zeroPercentage = 86;
-    }
-    else {
-      zeroPercentage = 81;
-    }
-
-
+    console.log('zeroPercentage:', zeroPercentage);
   } catch (error) {
-    console.error("Fetch failed:", error);
+    console.error('Fetch failed:', error);
   }
 }
 
 bet();
-
-//fetching a website

@@ -1,5 +1,6 @@
-export const endpoints = {
-  proxyUrl: 'https://corsproxy.io/?url=',
+const corsKey= "89e1b07b";
+
+export const endpoints = { 
   options : {
 	method: 'GET',
 	headers: {
@@ -20,5 +21,8 @@ export const endpoints = {
     roundInfoURL(leagueID, seasonID) {
     let roundInfoReplacer = `https://sofascore.p.rapidapi.com/tournaments/get-rounds?tournamentId=${leagueID}&seasonId=${seasonID}`
     return roundInfoReplacer;
-  }  
+  }, 
+   buildProxyUrl (targetUrl) {
+   return 'https://corsproxy.io/?' + new URLSearchParams({ key: corsKey, url: targetUrl });
+}
 }

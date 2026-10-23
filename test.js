@@ -1,23 +1,22 @@
 // test.js
-const targetUrl = 'https://sofascore.p.rapidapi.com/teams/detail?teamId=38';
+const params = new URLSearchParams({
+  key: '89e1b07b',
+  url: 'https://sofascore.p.rapidapi.com/categories/list?sport=football'
+});
 
-// corsproxy.io — handles preflight + forwards your RapidAPI headers
-const proxyUrl = 'https://corsproxy.io/?url=' + encodeURIComponent(targetUrl);
-
-const options = {
-  method: 'GET',
-  headers: {
-    'x-rapidapi-key': '7bac5b958fmshac9e738698ed3d9p137c4djsn9653cb47ed5e',
-    'x-rapidapi-host': 'sofascore.p.rapidapi.com',
-    'x-cors-api-key': '11680155'
-  }
-};
+const proxyUrl = 'https://corsproxy.io/?' + params;
 
 async function fetchTeam() {
   console.log('Fetching via:', proxyUrl);
 
   try {
-    const response = await fetch(proxyUrl, options);
+    const response = await fetch(proxyUrl, {
+      method: 'GET',
+      headers: {
+        'x-rapidapi-key': '7bac5b958fmshac9e738698ed3d9p137c4djsn9653cb47ed5e',
+        'x-rapidapi-host': 'sofascore.p.rapidapi.com'
+      }
+    });
 
     console.log('Status:', response.status, response.statusText);
 
