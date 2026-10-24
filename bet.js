@@ -1,7 +1,17 @@
 // bet.js
-
+import ExcelJS from 'https://esm.sh/exceljs@4.4.0';
 import { endpoints } from "./endpoints.js";
 import { variables } from "./variables.js";
+
+
+const workbook = new ExcelJS.Workbook();
+const worksheet = workbook.addWorksheet('New Sheet');
+
+worksheet.columns = [
+ { header: 'country', key: 'country' },
+ { header: 'countryId', key: 'countryId' }
+];
+
 
 const {
   buildProxyUrl,
@@ -25,6 +35,7 @@ let {
 
 async function bet() {
   try {
+
     // ---- Top five country ID gathering ----
     const response = await fetch(buildProxyUrl(countryInfoURL), options);
 
@@ -37,7 +48,7 @@ async function bet() {
 
     for (const countryName of countryNameArray) {
       const countryNameIterator = countryName.name.toLowerCase();
-
+worksheet.addRow({country:countryNameIterator, countryId:countryName.id})
       if (topFiveCountryNamesHolder.includes(countryNameIterator)) {
         topFiveCountriesID.push(countryName.id);
       }
@@ -114,9 +125,28 @@ async function bet() {
     zeroPercentage = zeroPercentageCounter > 0 ? 86 : 81;
 
     console.log('zeroPercentage:', zeroPercentage);
+
+    const buffer = await workbook.xlsx.writeBuffer();
+const blob = new Blob([buffer], {
+  type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+});
+const url = URL.createObjectURL(blob);
+
+const a = document.createElement('a');
+a.href = url;
+a.download = 'bet.xlsx';
+document.body.appendChild(a);
+a.click();
+a.remove();
+URL.revokeObjectURL(url);
+
+console.log('Downloaded bet.xlsx');
   } catch (error) {
     console.error('Fetch failed:', error);
   }
 }
 
 bet();
+
+
+// ---- Download the .xlsx ----
