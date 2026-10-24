@@ -29,7 +29,8 @@ let {
   topFiveLeaguesID,
   topFiveLeaguesCurrentSeason,
   zeroPercentageCounter,
-  zeroPercentage
+  zeroPercentage,
+  fotMobCountries
 } = variables;
 
 
@@ -48,8 +49,10 @@ async function bet() {
 
     for (const countryName of countryNameArray) {
       const countryNameIterator = countryName.name.toLowerCase();
+      if (fotMobCountries.includes(countryNameIterator)){
 worksheet.addRow({country:countryNameIterator, countryId:countryName.id})
-      if (topFiveCountryNamesHolder.includes(countryNameIterator)) {
+            } 
+                 if (topFiveCountryNamesHolder.includes(countryNameIterator)) {
         topFiveCountriesID.push(countryName.id);
       }
     }
@@ -126,7 +129,9 @@ worksheet.addRow({country:countryNameIterator, countryId:countryName.id})
 
     console.log('zeroPercentage:', zeroPercentage);
 
-    const buffer = await workbook.xlsx.writeBuffer();
+
+//downloading the excel file
+const buffer = await workbook.xlsx.writeBuffer();
 const blob = new Blob([buffer], {
   type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
 });
@@ -139,9 +144,9 @@ document.body.appendChild(a);
 a.click();
 a.remove();
 URL.revokeObjectURL(url);
-
 console.log('Downloaded bet.xlsx');
-  } catch (error) {
+
+} catch (error) {
     console.error('Fetch failed:', error);
   }
 }
