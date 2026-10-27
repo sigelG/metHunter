@@ -9,7 +9,9 @@ const worksheet = workbook.addWorksheet('New Sheet');
 
 worksheet.columns = [
  { header: 'country', key: 'country' },
- { header: 'countryId', key: 'countryId' }
+ { header: 'countryId', key: 'countryId' },
+ { header: 'league', key: 'league' },
+ { header: 'leagueId', key: 'leagueId' },
 ];
 
 
@@ -47,11 +49,12 @@ async function bet() {
     const result = await response.json();
     const countryNameArray = result.categories;
 
+    //filtering rapid API list of countries based on the fotmob list of countries
     for (const countryName of countryNameArray) {
       const countryNameIterator = countryName.name.toLowerCase();
       if (fotMobCountries.includes(countryNameIterator)){
-worksheet.addRow({country:countryNameIterator, countryId:countryName.id})
-            } 
+worksheet.addRow({country:countryNameIterator, countryId:countryName.id})            
+} 
                  if (topFiveCountryNamesHolder.includes(countryNameIterator)) {
         topFiveCountriesID.push(countryName.id);
       }
@@ -130,6 +133,26 @@ worksheet.addRow({country:countryNameIterator, countryId:countryName.id})
     console.log('zeroPercentage:', zeroPercentage);
 
 
+    //fetching and adding league names and league IDs to excel
+    const countryIdCol = worksheet.getColumn('countryId');
+    const countryIdCells = [];
+countryIdCol.eachCell((cell) => countryIdCells.push(cell));
+
+for (const cell of countryIdCells) {
+  if (cell.row === 1) continue;
+  const response = await fetch(buildProxyUrl(leagueInfoURL(cell.value)), options);
+  if (!response.ok) throw new Error(`HTTP ${response.status}`);
+  const result = await response.json();
+
+  const t = result.groups[0].uniqueTournaments[0];
+ const row = worksheet.getRow(cell.row);
+  row.getCell('league').value   = t.name.toLowerCase();
+  row.getCell('leagueId').value = t.id;
+  row.commit();
+console.log("hi");
+}
+
+
 //downloading the excel file
 const buffer = await workbook.xlsx.writeBuffer();
 const blob = new Blob([buffer], {
@@ -152,6 +175,3 @@ console.log('Downloaded bet.xlsx');
 }
 
 bet();
-
-
-// ---- Download the .xlsx ----
